@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f0f2f5;
+    }
+
+    .calculator {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      width: 320px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    .inputs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    input[type="number"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #4a90e2;
+      color: white;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #357abd;
+    }
+
+    .result {
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #333;
+      min-height: 1.5rem;
+    }
+
+    .error {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #e74c3c;
+      min-height: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h1>Calculator</h1>
+    <div class="inputs">
+      <input type="number" id="a" placeholder="a" />
+      <input type="number" id="b" placeholder="b" />
+    </div>
+    <div class="buttons">
+      <button onclick="calculate('add')">Add</button>
+      <button onclick="calculate('subtract')">Subtract</button>
+      <button onclick="calculate('multiply')">Multiply</button>
+      <button onclick="calculate('divide')">Divide</button>
+    </div>
+    <div class="result" id="result"></div>
+    <div class="error" id="error"></div>
+  </div>
+
+  <script>
+    async function calculate(operation) {
+      const a = parseFloat(document.getElementById('a').value);
+      const b = parseFloat(document.getElementById('b').value);
+      const resultEl = document.getElementById('result');
+      const errorEl = document.getElementById('error');
+
+      resultEl.textContent = '';
+      errorEl.textContent = '';
+
+      if (isNaN(a) || isNaN(b)) {
+        errorEl.textContent = 'Please enter valid numbers in both fields.';
+        return;
+      }
+
+      try {
+        const response = await fetch('/' + operation, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ a, b }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          errorEl.textContent = data.detail || 'An error occurred.';
+        } else {
+          resultEl.textContent = 'Result: ' + data.result;
+        }
+      } catch (err) {
+        errorEl.textContent = 'Network error. Please try again.';
+      }
+    }
+  </script>
+</body>
+</html>
